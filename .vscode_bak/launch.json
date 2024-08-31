@@ -1,0 +1,49 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "server",
+        "type": "cppdbg",
+        "request": "launch",
+        "stopAtEntry": false,
+        "externalConsole": false,
+        "cwd": "${workspaceFolder}/build/samples",
+        "program": "${workspaceFolder}/build/samples/server",
+        "args": ["-v", "/tmp/vfio-user.sock"],
+        "environment": [
+          // {"name": "LD_LIBRARY_PATH", "value": "/snap/core22/1122/usr/lib/x86_64-linux-gnu"},
+        ],
+        "MIMode": "gdb",
+        "miDebuggerPath": "gdb",
+        "setupCommands": [
+          {
+            "description": "Enable pretty-printing for gdb",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          }
+        ]
+      },
+      {
+        "name": "client",
+        "type": "cppdbg",
+        "request": "launch",
+        "stopAtEntry": false,
+        "externalConsole": false,
+        "cwd": "${workspaceFolder}/build/samples",
+        "program": "${workspaceFolder}/build/samples/client",
+        "args": ["/tmp/vfio-user.sock"],
+        "environment": [
+          // {"name": "LD_LIBRARY_PATH", "value": "/snap/core22/1122/usr/lib/x86_64-linux-gnu"},
+        ],
+        "MIMode": "gdb",
+        "miDebuggerPath": "gdb",
+        "setupCommands": [
+          {
+            "description": "Enable pretty-printing for gdb",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          }
+        ]
+      },
+    ]
+  }

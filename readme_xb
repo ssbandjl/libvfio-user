@@ -1,0 +1,213 @@
+server.c -> main
+    vfu_create_ctx
+        vfu_ctx->tran = &tran_sock_ops
+        vfu_setup_device_nr_irqs(vfu_ctx, VFU_DEV_ERR_IRQ, 1)
+        vfu_setup_device_nr_irqs(vfu_ctx, VFU_DEV_REQ_IRQ, 1)
+        vfu_ctx->tran->init(vfu_ctx)
+    vfu_setup_log(vfu_ctx, _log, verbose ? LOG_DEBUG : LOG_ERR)
+    vfu_pci_init(vfu_ctx, VFU_PCI_TYPE_CONVENTIONAL, PCI_HEADER_TYPE_NORMAL, 0)
+        vfu_pci_config_space_t *cfg_space
+        case VFU_PCI_TYPE_PCI_X_1
+            size = PCI_CFG_SPACE_SIZE -> 256
+        cfg_space = calloc(1, size)
+    vfu_pci_set_id(vfu_ctx, 0xdead, 0xbeef, 0xcafe, 0xbabe)
+    vfu_setup_region(vfu_ctx, VFU_PCI_DEV_BAR0_REGION_IDX, sizeof(time_t), &bar0_access, VFU_REGION_FLAG_RW, NULL, 0, -1, 0)
+        reg->cb = cb
+    umask(0022)
+    tmpfd = mkstemp(template)
+    unlink(template)
+    ftruncate(tmpfd, server_data.bar1_size)
+    server_data.bar1 = mmap(NULL, server_data.bar1_size, PROT_READ | PROT_WRITE, MAP_SHARED, tmpfd, 0)
+    vfu_setup_region(vfu_ctx, VFU_PCI_DEV_BAR1_REGION_IDX, server_data.bar1_size, &bar1_access, VFU_REGION_FLAG_RW, bar1_mmap_areas, 2, tmpfd, 0)
+        copyin_mmap_areas(reg, mmap_areas, nr_mmap_areas)
+            reg_info->mmap_areas = malloc(size)
+            memcpy(reg_info->mmap_areas, mmap_areas, size)
+    vfu_setup_device_migration_callbacks(vfu_ctx, &migr_callbacks)
+        vfu_ctx->migration = init_migration(callbacks, &ret)
+            migr->pgsize = sysconf(_SC_PAGESIZE)
+            migr->callbacks = *callbacks
+    vfu_setup_device_reset_cb(vfu_ctx, &device_reset)
+    vfu_setup_device_dma(vfu_ctx, &dma_register, &dma_unregister)
+        vfu_ctx->dma = dma_controller_create(vfu_ctx, MAX_DMA_REGIONS, MAX_DMA_SIZE)
+            dma = malloc(offsetof(dma_controller_t, regions) + max_regions * sizeof(dma->regions[0]))
+            memset(dma->regions, 0, max_regions * sizeof(dma->regions[0]))
+            dma->dirty_pgsize = 0
+    vfu_setup_device_nr_irqs(vfu_ctx, VFU_DEV_INTX_IRQ, 1)
+    vfu_realize_ctx(vfu_ctx)
+        vfu_ctx->pci.config_space = calloc(1, cfg_reg->size)
+    vfu_attach_ctx(vfu_ctx) -> vfu_ctx->tran->attach(vfu_ctx)
+    do
+        vfu_run_ctx(vfu_ctx)
+            do
+                err = get_request(vfu_ctx, &msg)
+                    should_exec_command(vfu_ctx, msg->hdr.cmd)
+                handle_request(vfu_ctx, msg)
+                    handle_region_access(vfu_ctx, msg)
+                    region_access
+                        ret = pci_config_space_access(vfu_ctx, buf, count, offset, is_write)
+                    do_reply
+        if (ret == -1 && errno == EINTR)
+            ret = vfu_irq_trigger(vfu_ctx, 0)
+                eventfd_write(vfu_ctx->irqs->efds[subindex], val)
+            do_dma_io(vfu_ctx, &server_data, 1, false)
+                sg = alloca(dma_sg_size())
+                vfu_addr_to_sgl
+                    dma_addr_to_sgl(vfu_ctx->dma, dma_addr, len, sgl, max_nr_sgs, prot) -> 获取线性 DMA 地址跨度并返回适合 DMA 的 sg 列表。由于内存映射方式的限制，可能需要将单个线性 DMA 地址跨度拆分为多个分散聚集区域
+                        dma_init_sg
+                            sg->dma_addr = region->info.iova.iov_base
+                            sg->offset = dma_addr - region->info.iova.iov_base
+                        _dma_addr_sg_split
+                            dma_init_sg
+                vfu_sgl_write
+                    vfu_dma_transfer
+                        memcpy(rbuf + sizeof(*dma_req), data + count, dma_req->count)
+                        ret = vfu_ctx->tran->send_msg(vfu_ctx, msg_id++, VFIO_USER_DMA_WRITE, rbuf,
+                vfu_sgl_mark_dirty(vfu_ctx, sg, 1)
+                    dma_sgl_mark_dirty(vfu_ctx->dma, sgl, cnt)
+                vfu_sgl_put(vfu_ctx, sg, &iov, 1)
+                crc1 = rte_hash_crc(buf, sizeof(buf), 0)
+            do_dma_io(vfu_ctx, &server_data, 0, true)
+
+
+
+
+const vfu_migration_callbacks_t migr_callbacks = {
+    .version = VFU_MIGR_CALLBACKS_VERS,
+    .transition = &migration_device_state_transition,
+    .read_data = &migration_read_data,
+    .write_data = &migration_write_data
+        memcpy(server_data->bar1 + write_start, buf, length_in_bar1)
+        memcpy((char *)&server_data->bar0 + write_start, buf + length_in_bar1, length_in_bar0)
+};
+
+
+struct transport_ops tran_sock_ops = {
+    .init = tran_sock_init,
+        ts->listen_fd = socket(AF_UNIX, SOCK_STREAM, 0) -> bind -> listen
+    .get_poll_fd = tran_sock_get_poll_fd,
+    .attach = tran_sock_attach,
+        ts->conn_fd = accept(ts->listen_fd, NULL, NULL)
+        tran_negotiate(vfu_ctx, &ts->client_cmd_socket_fd)
+            recv_version(vfu_ctx, &msg_id, &client_version, &twin_socket_supported)
+                vfu_ctx->tran->recv_msg(vfu_ctx, &msg)
+    .get_request_header = tran_sock_get_request_header,
+    .recv_body = tran_sock_recv_body,
+    .reply = tran_sock_reply,
+    .recv_msg = tran_sock_recv_msg,
+        tran_sock_recv_alloc(ts->conn_fd, &msg->hdr, false, NULL, &msg->in.iov.iov_base, &msg->in.iov.iov_len)
+            tran_sock_recv(sock, hdr, is_reply, msg_id, NULL, NULL) -> tran_sock_recv_fds
+                get_msg(hdr, sizeof(*hdr), fds, nr_fds, sock, 0)
+                    recvmsg(sock_fd, &msg, sock_flags)
+            recv(sock, data, len, MSG_WAITALL)
+    .send_msg = tran_sock_send_msg,
+        maybe_print_cmd_collision_warning
+        tran_sock_msg(fd, msg_id, cmd, send_data, send_len, hdr, recv_data, recv_len) -> tran_sock_msg_fds
+            tran_sock_msg_iovec
+    .detach = tran_sock_detach,
+    .fini = tran_sock_fini
+};
+
+
+
+
+client.c -> main
+    void *dirty_pages = malloc(dirty_pages_size) -> 24B
+    dirty_pages_control = (void *)(dirty_pages_feature + 1)
+    sock = init_sock(argv[optind]) -> sock -> connect
+    negotiate(sock, &server_max_fds, &server_max_data_xfer_size, &pgsize)
+        send_version(sock)
+        recv_version(sock, server_max_fds, server_max_data_xfer_size, pgsize)
+    ret = access_region(sock, 0xdeadbeef, false, 0, &ret, sizeof(ret))
+        op = VFIO_USER_REGION_READ
+        tran_sock_msg_iovec -> tran_sock_send_iovec
+    get_device_info(sock, &client_dev_info)
+    get_device_regions_info(sock, &client_dev_info)
+        get_device_region_info
+            do_get_device_region_info
+    send_device_reset(sock)
+    map_dma_regions(sock, dma_regions, nr_dma_regions)
+        tran_sock_msg_iovec(sock, 0x1234 + i, VFIO_USER_DMA_MAP,
+    irq_fd = configure_irqs(sock) -> VFIO_USER_DEVICE_GET_IRQ_INFO -> VFIO_USER_DEVICE_SET_IRQS
+    access_bar0(sock, &t)
+    wait_for_irq(irq_fd) -> read(irq_fd, &val, sizeof(val)
+    handle_dma_io(sock, dma_regions, nr_dma_regions)
+        handle_dma_write
+            c = pwrite(dma_regions[i].fd, data, dma_access.count, offset)
+            tran_sock_send(sock, msg_id, true, VFIO_USER_DMA_WRITE, &dma_access, sizeof(dma_access))
+        handle_dma_read
+    get_dirty_bitmap
+    nr_iters = migrate_from
+    migrate_to
+        fork()
+        ret = execvp(_argv[0] , _argv)
+        sock = init_sock(sock_path) -> reconnect to new server
+        set_migration_state(sock, device_state)
+        write_migr_data -> tran_sock_msg_iovec(sock, msg_id--, VFIO_USER_MIG_DATA_WRITE,
+        dst_crc = rte_hash_crc(buf, bar1_size, 0)
+            init_val = rte_hash_crc_8byte(*(const uint64_t *)pd, init_val) -> crc32c_2words(data, init_val)
+                term1 = CRC32_UPD(crc, 7) -> static const uint32_t crc32c_tables[8][256]
+    map_dma_regions
+    configure_irqs
+    wait_for_irq
+    handle_dma_io
+
+
+
+
+
+
+handle_dma_map
+    dma_controller_add_region -> MOCK_DEFINE(dma_controller_add_region)
+        region->info.iova.iov_base = (void *)dma_addr
+        dma_map_region(dma, region)
+            mmap_len = ROUND_UP(region->info.iova.iov_len, region->info.page_size) -> 4096
+            mmap_base = mmap(NULL, mmap_len, region->info.prot, MAP_SHARED, region->fd, offset)
+            madvise(mmap_base, mmap_len, MADV_DONTDUMP)
+            region->info.vaddr = mmap_base + (region->offset - offset)
+    vfu_ctx->dma_register(vfu_ctx, &vfu_ctx->dma->regions[ret].info) -> dma_register(vfu_ctx_t *vfu_ctx, vfu_dma_info_t *info)
+        struct server_data *server_data = vfu_get_private(vfu_ctx)
+        server_data->regions[idx].iova = info->iova
+
+
+VFIO_USER_DEVICE_GET_IRQ_INFO -> handle_device_set_irqs
+    device_set_irqs_validate
+
+
+
+
+VFIO_USER_MIG_DATA_WRITE -> handle_mig_data_write
+    struct vfio_user_mig_data *req = msg->in.iov.iov_base
+    ssize_t ret = migr->callbacks.write_data(vfu_ctx, &req->data, req->size)
+
+
+
+
+
+lib/pci.c
+pci_hdr_write
+
+
+
+
+/* Analogous to enum vfio_device_mig_state */
+enum vfio_user_device_mig_state {
+    VFIO_USER_DEVICE_STATE_ERROR = 0,
+    VFIO_USER_DEVICE_STATE_STOP = 1,
+    VFIO_USER_DEVICE_STATE_RUNNING = 2,
+    VFIO_USER_DEVICE_STATE_STOP_COPY = 3,
+    VFIO_USER_DEVICE_STATE_RESUMING = 4,
+    VFIO_USER_DEVICE_STATE_RUNNING_P2P = 5,
+    VFIO_USER_DEVICE_STATE_PRE_COPY = 6,
+    VFIO_USER_DEVICE_STATE_PRE_COPY_P2P = 7,
+    VFIO_USER_DEVICE_NUM_STATES = 8,
+};
+
+
+
+
+shadow_ioeventfd_server.c
+
+
+
+vfu_create_ioeventfd
+

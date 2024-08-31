@@ -1,0 +1,103 @@
+root@xt-desktop:~/xb/project/virt/libvfio-user# build/samples/client /tmp/vfio-user.sock
+client: failed to read from region -559038737 0-0x3: Invalid argument
+client: devinfo: flags 0x3, num_regions 9, num_irqs 5
+client: get_device_region_info: region_info[0] offset 0 flags 0x3 size 8 cap_sz 0 #FDs 0
+client: get_device_region_info: region_info[1] offset 0 flags 0xf size 12288 cap_sz 48 #FDs 1
+client: get_region_vfio_caps: Sparse cap nr_mmap_areas 2
+client: get_region_vfio_caps: area 0 offset 0 size 4096
+client: get_region_vfio_caps: area 1 offset 0x2000 size 4096
+client: get_device_region_info: region_info[2] offset 0 flags 0 size 0 cap_sz 0 #FDs 0
+client: get_device_region_info: region_info[3] offset 0 flags 0 size 0 cap_sz 0 #FDs 0
+client: get_device_region_info: region_info[4] offset 0 flags 0 size 0 cap_sz 0 #FDs 0
+client: get_device_region_info: region_info[5] offset 0 flags 0 size 0 cap_sz 0 #FDs 0
+client: get_device_region_info: region_info[6] offset 0 flags 0 size 0 cap_sz 0 #FDs 0
+client: get_device_region_info: region_info[7] offset 0 flags 0x3 size 256 cap_sz 0 #FDs 0
+client: get_device_region_info: region_info[8] offset 0 flags 0 size 0 cap_sz 0 #FDs 0
+client: IRQ INTx: count=1 flags=0x1
+client: IRQ ERR: count=1 flags=0x1
+client: IRQ REQ: count=1 flags=0x1
+client: wrote to BAR0: 1725065948
+client: read from BAR0: -1
+client: INTx triggered!
+client: get_dirty_bitmap: 0-0xfff       0x1
+client: get_dirty_bitmap: 0x1000-0x1fff 0x1
+client: get_dirty_bitmap: 0x2000-0x2fff 0
+client: get_dirty_bitmap: 0x3000-0x3fff 0
+client: get_dirty_bitmap: 0x4000-0x4fff 0
+client: get_dirty_bitmap: 0x5000-0x5fff 0
+client: get_dirty_bitmap: 0x6000-0x6fff 0
+client: get_dirty_bitmap: 0x7000-0x7fff 0
+client: get_dirty_bitmap: 0x8000-0x8fff 0
+client: get_dirty_bitmap: 0x9000-0x9fff 0
+client: get_dirty_bitmap: 0xa000-0xafff 0
+client: get_dirty_bitmap: 0xb000-0xbfff 0
+client: get_dirty_bitmap: 0xc000-0xcfff 0
+client: get_dirty_bitmap: 0xd000-0xdfff 0
+client: get_dirty_bitmap: 0xe000-0xefff 0
+client: get_dirty_bitmap: 0xf000-0xffff 0
+client: stopping fake guest thread
+client: setting device state to stop-and-copy
+client: starting destination server
+server[340962]: migration: transition to device state 0
+server[340962]: migration: transition to device state 4
+server[340962]: migration: transition to device state 0
+server[340962]: region1: read 12288 bytes at 0
+server[340962]: migration: transition to device state 1
+server[340962]: arming timer to trigger in 10 seconds
+server[340962]: adding DMA region [0x8000, 0x9000) offset=0x8000 flags=0x3
+server[340962]: mapped DMA region iova=[0x8000, 0x9000) vaddr=0x7fd737aa8000 page_size=1000 mapping=[0x7fd737aa8000, 0x7fd737aa9000)
+server[340962]: adding DMA region [0x9000, 0xa000) offset=0x9000 flags=0x3
+server[340962]: mapped DMA region iova=[0x9000, 0xa000) vaddr=0x7fd737a5b000 page_size=1000 mapping=[0x7fd737a5b000, 0x7fd737a5c000)
+server[340962]: adding DMA region [0xa000, 0xb000) offset=0xa000 flags=0x3
+server[340962]: mapped DMA region iova=[0xa000, 0xb000) vaddr=0x7fd737a5a000 page_size=1000 mapping=[0x7fd737a5a000, 0x7fd737a5b000)
+server[340962]: adding DMA region [0xb000, 0xc000) offset=0xb000 flags=0x3
+server[340962]: mapped DMA region iova=[0xb000, 0xc000) vaddr=0x7fd737a59000 page_size=1000 mapping=[0x7fd737a59000, 0x7fd737a5a000)
+server[340962]: adding DMA region [0xc000, 0xd000) offset=0xc000 flags=0x3
+server[340962]: mapped DMA region iova=[0xc000, 0xd000) vaddr=0x7fd737a58000 page_size=1000 mapping=[0x7fd737a58000, 0x7fd737a59000)
+server[340962]: adding DMA region [0xd000, 0xe000) offset=0xd000 flags=0x3
+server[340962]: mapped DMA region iova=[0xd000, 0xe000) vaddr=0x7fd737a57000 page_size=1000 mapping=[0x7fd737a57000, 0x7fd737a58000)
+server[340962]: adding DMA region [0xe000, 0xf000) offset=0xe000 flags=0x3
+server[340962]: mapped DMA region iova=[0xe000, 0xf000) vaddr=0x7fd737a56000 page_size=1000 mapping=[0x7fd737a56000, 0x7fd737a57000)
+server[340962]: adding DMA region [0xf000, 0x10000) offset=0xf000 flags=0x3
+server[340962]: mapped DMA region iova=[0xf000, 0x10000) vaddr=0x7fd737a55000 page_size=1000 mapping=[0x7fd737a55000, 0x7fd737a56000)
+client: IRQ INTx: count=1 flags=0x1
+client: IRQ ERR: count=1 flags=0x1
+client: IRQ REQ: count=1 flags=0x1
+server[340962]: setting IRQ INTx flags=0x24 range [0, 1)
+server[340962]: event fd[0]=22
+server[340962]: failed to receive request: Interrupted system call
+doing dma io
+server[340962]: do_dma_io: DIRECT WRITE  addr 0x9000 size 1024
+server[340962]: do_dma_io: DIRECT WRITE  addr 0x9400 size 1024
+server[340962]: do_dma_io: DIRECT WRITE  addr 0x9800 size 1024
+client: INTx triggered!
+server[340962]: do_dma_io: DIRECT WRITE  addr 0x9c00 size 1024
+server[340962]: do_dma_io: DIRECT READ   addr 0x9000 size 2048
+server[340962]: do_dma_io: DIRECT READ   addr 0x9800 size 2048
+server[340962]: do_dma_io: DIRECT success
+server[340962]: do_dma_io: MESSAGE WRITE addr 0x8000 size 1024
+server[340962]: You are using libvfio-user in a configuration that issues client-to-server commands, but without the twin_socket feature enabled. This is known to break when client and server send a command at the same time. See https://github.com/nutanix/libvfio-user/issues/279 for details.
+server[340962]: do_dma_io: MESSAGE WRITE addr 0x8400 size 1024
+server[340962]: do_dma_io: MESSAGE WRITE addr 0x8800 size 1024
+server[340962]: do_dma_io: MESSAGE WRITE addr 0x8c00 size 1024
+server[340962]: do_dma_io: MESSAGE READ  addr 0x8000 size 2048
+server[340962]: do_dma_io: MESSAGE READ  addr 0x8800 size 2048
+server[340962]: do_dma_io: MESSAGE success
+server[340962]: removing DMA region [0, 0) flags=0x2
+server[340962]: removing DMA region iova=[0x8000, 0x9000) vaddr=0x7fd737aa8000 mapping=[0x7fd737aa8000, 0x7fd737aa9000)
+server[340962]: removing DMA region iova=[0x9000, 0xa000) vaddr=0x7fd737a5b000 mapping=[0x7fd737a5b000, 0x7fd737a5c000)
+server[340962]: removing DMA region iova=[0xa000, 0xb000) vaddr=0x7fd737a5a000 mapping=[0x7fd737a5a000, 0x7fd737a5b000)
+server[340962]: removing DMA region iova=[0xb000, 0xc000) vaddr=0x7fd737a59000 mapping=[0x7fd737a59000, 0x7fd737a5a000)
+server[340962]: removing DMA region iova=[0xc000, 0xd000) vaddr=0x7fd737a58000 mapping=[0x7fd737a58000, 0x7fd737a59000)
+server[340962]: removing DMA region iova=[0xd000, 0xe000) vaddr=0x7fd737a57000 mapping=[0x7fd737a57000, 0x7fd737a58000)
+server[340962]: removing DMA region iova=[0xe000, 0xf000) vaddr=0x7fd737a56000 mapping=[0x7fd737a56000, 0x7fd737a57000)
+server[340962]: removing DMA region iova=[0xf000, 0x10000) vaddr=0x7fd737a55000 mapping=[0x7fd737a55000, 0x7fd737a56000)
+server[340962]: failed to receive request header: No message of desired type
+server[340962]: vfu_reset_ctx: No message of desired type
+server[340962]: device reset callback
+server[340962]: disabling IRQ type REQ range [0, 1)
+server[340962]: disabling IRQ type ERR range [0, 1)
+server[340962]: vfu_reset_ctx: Cannot send after transport endpoint shutdown
+server[340962]: device reset callback
+server[340962]: disabling IRQ type REQ range [0, 1)
+server[340962]: disabling IRQ type ERR range [0, 1)

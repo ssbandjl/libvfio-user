@@ -3,3 +3,4 @@ build
 cscope.out
 tags
 lib/*.gcov
+.vscode
