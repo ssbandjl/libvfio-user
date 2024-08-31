@@ -1,3 +1,6 @@
+VFIO-USER：一种新的虚拟化协议,2021 年 5 月 4 日 • 本·沃克  我们很高兴地宣布支持 NVMe over vfio-user，这项技术允许 SPDK 将完全模拟的 NVMe 设备呈现到虚拟机中。虚拟机可以利用其现有的 NVMe 驱动程序与设备进行通信，并且数据可以使用共享内存高效地传输到 SPDK 或从 SPDK 传输。换句话说，就像 vhost-user 一样，但能够模拟 NVMe 设备而不是 virtio-blk 或 virtio-scsi 设备。  QEMU 社区目前正在对 vfio-user 进行标准化和支持。草案规范已让所有相关方达成一致，并且正在迅速成熟。该协议本身能够模拟任何物理设备，而不仅仅是 NVMe，但到目前为止，使用 SPDK 模拟 NVMe 设备是新接口的第一个也是主要的消费者。  Nutanix 发布了一个便捷库，可帮助实现协议的服务器，SPDK 在其实现中利用了这一点。  NVMe 设备模拟是使用 SPDK 现有的 NVMe-oF 目标实现的，将 vfio-user 视为共享内存“传输”，就像它支持 TCP、RDMA、PCIe 和光纤通道一样。NVMe-oF 规范已经要求对 NVMe 设备进行广泛的模拟，因此模拟物理 NVMe SSD 所需的几乎所有逻辑都已经存在。这真的就像为 vfio-user 添加一个新的传输插件一样简单。虽然这种传输不是 NVMe-oF 规范的正式组成部分，但传输插件系统已设置为允许自定义传输。这些传输插件甚至可以存在于 SPDK 存储库之外的共享库中，并在运行时被发现，尽管 vfio-user 传输内置于 SPDK 本身。  我们对虚拟化技术的这一进步感到兴奋。通过模拟物理 NVMe 设备，任何具有 NVMe 驱动程序的操作系统（即所有操作系统）都可以与该设备通信。这对于 Windows 来说尤其重要 - 无需再加载 virtio 驱动程序！它还允许虚拟机从模拟的 NVMe 设备启动，因为 UEFI BIOS 包含 NVMe 驱动程序。  从长远来看，我们完全相信 vfio-user 不仅能在存储行业，还能在网络和其他领域赢得市场份额。我们预计其性能将非常出色 - 至少与 virtio-blk 一样好，但可能更好 - 并且一旦基准测试可用，我们就会非常高兴地分享它们
+
+
 server.c -> main
     vfu_create_ctx
         vfu_ctx->tran = &tran_sock_ops
